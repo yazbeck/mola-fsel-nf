@@ -1,0 +1,32 @@
+# runtime / cache / outputs
+work/
+results/
+data/
+.cache/
+.nextflow*
+.nextflow/
+*.nfcache
+*.log
+
+# large artifacts
+*.rds
+*.RData
+*.hdf5
+*.h5
+*.maf
+*.tsv.gz
+*.csv.gz
+*.pdf
+
+# local envs
+CondaMofa/
+R/
+.venv/
+.env
+
+# misc
+.Rhistory
+.Rproj.user/
+__pycache__/
+.DS_Store
+slurm-*.out
