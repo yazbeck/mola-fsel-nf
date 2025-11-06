@@ -42,7 +42,7 @@ nextflow run wf_main.nf -profile slurm  \
 
 ```bash
 data/<PROJECT>/ # from --data_base (cache/prepared inputs)
-  ├─ raw/
+  └─ raw/
       ├─ cnv_thresholded_by_genes.rds
       ├─ cnv_thresholded_by_genes.tsv
       ├─ expression_se.rds
