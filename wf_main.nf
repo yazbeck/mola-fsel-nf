@@ -32,12 +32,7 @@ workflow {
     //.map { p, g, mofa_dir -> tuple(p, g, mofa_dir) }
     .set { perGeneWithMofa }
 
-  // >>> duplicate the stream for two independent consumers
-  // perGeneWithMofa.into { perGeneForWeights; perGeneForLasso }
 
   GET_TOP_WEIGHTS(perGeneWithMofa)
   LASSO_RECON(GET_TOP_WEIGHTS.out)   // feed LASSO from weights' output (no .into needed)
-
-  //GET_TOP_WEIGHTS(perGeneWithMofa)
-  //LASSO_RECON(perGeneWithMofa)
 }
