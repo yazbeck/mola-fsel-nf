@@ -1,4 +1,4 @@
-# mola-fsel-nf — Module 1 (MOFA → LASSO)
+# mola-fsel-nf: Module 1 (MOFA & LASSO)
 
 **Goal:** explain **why specific genes are selected (mutated) in a given tissue** by integrating multi-omics and identifying features that separate *gene-mut* vs *gene-WT* samples.
 
