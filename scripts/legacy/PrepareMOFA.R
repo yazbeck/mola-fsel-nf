@@ -233,22 +233,6 @@ k_best <- length(keep)
 message(sprintf("# ---- Keeping %d factors: %s",
                 k_best, paste(keep_names, collapse = ", ")))
 
-# ----
-#ve_raw   <- get_variance_explained(model_raw)
-#r2_total <- as.numeric(ve_raw$r2_total)      # total VE per factor (length = K_raw)
-#k_best   <- sum(r2_total > 0.01)             
-#if (is.na(k_best) || k_best < 2) k_best <- min(8, length(r2_total))
-#message("k_best = ", k_best)
-#
-#ve <- get_variance_explained(model_raw)$r2_per_factor
-#M  <- if (is.list(ve)) do.call(rbind, ve) else as.matrix(ve)  # views x factors
-#total_per_factor <- colSums(M, na.rm = TRUE)
-#ve_total <- sum(total_per_factor, na.rm = TRUE)
-#k_best <- sum(total_per_factor > 0.01)
-#if (is.na(k_best) || k_best < 2) k_best <- min(8, ncol(M))  # conservative fallback
-#message("k_best selected from VE = ", k_best, " (total VE = ", signif(ve_total, 3), ")")
-# ----
-
 ## Build with the best K selected above (from the training run)
 
 model_opts <- get_default_model_options(mofa)
@@ -276,83 +260,11 @@ dev.off()
 ve_final <- get_variance_explained(trained)
 saveRDS(ve_final, file.path(out_dir, "Model_final_variance_explained.rds"))
 
-# ----
-#model_opts <- get_default_model_options(mofa)
-#model_opts$num_factors <- k_best
-#model_opts$likelihoods <- likelihoods[names(views)]
-#
-#train_opts <- get_default_training_options(mofa)
-#train_opts$seed                  <- 42
-#train_opts$verbose               <- TRUE
-#train_opts$drop_factor_threshold <- 0.0      
-#
-## 
-#data_opts <- NULL
-#
-#data_opts <- get_default_data_options(mofa)  # <-- mild stabilization only
-#data_opts$scale_views <- TRUE
-#
-#prep2 <- prepare_mofa(
-#  mofa,
-#  data_options     = data_opts,
-#  model_options    = model_opts,
-#  training_options = train_opts
-#)
-#
-##prep2    <- prepare_mofa(mofa, model_options = model_opts, training_options = train_opts)
-#trained <- run_mofa(prep2, outfile = file.path(out_dir, "model_final.hdf5"))
-#saveRDS(trained, file = file.path(out_dir, "model_final.rds"))
-#
-#pdf(file.path(out_dir, "Model_final_variance_explained.pdf"))
-#plot_variance_explained(trained, plot_total = TRUE)
-#dev.off()
-#
-#ve_final <- get_variance_explained(trained)
-#saveRDS(ve_final, file.path(out_dir, "Model_final_variance_explained.rds"))
-## ----
-
-## 
-#k_grid <- c(8, 12, 16)
-#best_score <- -Inf; best_fit <- NULL; best_k <- NA_integer_
-#
-#for (k in k_grid) {
-#  model_opts <- get_default_model_options(mofa); model_opts$num_factors <- k
-#  train_opts <- get_default_training_options(mofa); train_opts$seed <- 1
-#  train_opts$drop_factor_threshold <- 0.01  
-#
-#  prep <- prepare_mofa(
-#    mofa,
-#    model_options    = model_opts,
-#    training_options = train_opts
-#  )
-#  fit  <- run_mofa(prep)
-#
-#  ve <- try(get_variance_explained(fit), silent = TRUE)
-#  score <- if (inherits(ve, "try-error")) 0 else {
-#    s <- 0
-#    if (!is.null(ve$r2_per_factor)) s <- sum(unlist(ve$r2_per_factor), na.rm = TRUE)
-#    else if (!is.null(ve$r2_total)) s <- sum(unlist(ve$r2_total),      na.rm = TRUE)
-#    s
-#  }
-#  if (score > best_score) { best_score <- score; best_fit <- fit; best_k <- k }
-#}
-#trained <- best_fit
-#
-
 # Export factors (samples x factors)
 factors <- as.data.frame(get_factors(trained, factors = "all", as.data.frame = FALSE)[[1]])
 factors <- cbind(sample = rownames(factors), factors)
 readr::write_tsv(factors, file.path(out_dir, "factors.tsv"))
 
-# Export labels
-#if (!is.na(opt$labels) && file.exists(opt$labels)) {
-#  lab <- readr::read_tsv(opt$labels, show_col_types = FALSE)
-#} else {
-#  gene_rows <- grepl(paste0("^", opt$gene, "_"), rownames(mut_mat))
-#  status <- as.integer(colSums(mut_mat[gene_rows, samples, drop = FALSE]) > 0)  
-#  lab <- data.frame(sample = samples, class = ifelse(status==1, paste0(opt$gene,"_mut"), paste0(opt$gene,"_wt")))
-#}
-#readr::write_tsv(lab, file.path(out_dir, "labels.tsv"))
 #
 if (!is.na(opt$labels) && file.exists(opt$labels)) {
   lab <- readr::read_tsv(opt$labels, show_col_types = FALSE)
