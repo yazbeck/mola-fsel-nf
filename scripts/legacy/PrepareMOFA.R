@@ -68,7 +68,29 @@ expr_to_logtpm <- function(seObj) {
   log2(tpm + 1)
 }
 
+# Convert ENSGIDs to GENE NAMES
+set_rownames_to_genes <- function(expr_mat, seObj, column = "gene_name") {
+  rd <- SummarizedExperiment::rowData(seObj)
+
+  # named vector: names = ENSG IDs (rownames of SE), values = gene_name
+  gene_map <- setNames(as.character(rd[[column]]), rownames(rd))
+
+  # match by ENSG rownames
+  new_names <- gene_map[rownames(expr_mat)]
+
+  # fallback: if gene_name missing, keep original ENSG ID
+  idx_na <- is.na(new_names) | new_names == ""
+  new_names[idx_na] <- rownames(expr_mat)[idx_na]
+
+  new_names <- make.unique(new_names)
+  
+  rownames(expr_mat) <- new_names
+  expr_mat
+}
+
+
 expr_mat <- expr_to_logtpm(expr_se)
+expr_mat <- set_rownames_to_genes(expr_mat, expr_se)
 colnames(expr_mat) <- short_tcga(colnames(expr_mat))
 
 # Extract the matrix of the mutations count of TRUN and MIS mutations
